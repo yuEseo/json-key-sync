@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Modify and Download JSON</title>
+</head>
+<body>
+    <input type="file" id="fileInput" accept=".json">
+    <button onclick="loadAndModifyJSON()">Load and Modify JSON</button>
+
+    <script>
+        function loadAndModifyJSON() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    try {
+                        const jsonObj = JSON.parse(event.target.result);
+
+                        // Modify each key to have its own name as the value
+                        Object.keys(jsonObj).forEach(key => {
+                            jsonObj[key] = key;  // Set value to the key name
+                        });
+
+                        // Prepare and download the modified JSON
+                        downloadJSON(jsonObj);
+                    } catch (error) {
+                        console.error('Error parsing JSON!', error);
+                        alert('There was an error processing your JSON file.');
+                    }
+                };
+
+                reader.readAsText(file);  // Read the file as text
+            } else {
+                alert('Please select a JSON file first.');
+            }
+        }
+
+        function downloadJSON(jsonData) {
+            const jsonStr = JSON.stringify(jsonData, null, 2);  // Beautify the JSON output
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            // Create a link and trigger the download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'modified.json';
+            document.body.appendChild(a);
+            a.click();
+
+            // Clean up
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
